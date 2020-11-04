@@ -1,0 +1,76 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<body>
+    <iframe id="ifram" width="500" height="500" frameborder="0" src="https://demo.spf.dingus-services.com:4433/form?uuid=0f596f30d1c84c7eba6bee4f3d619f6f" />
+    @if (Response == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Result</th>
+                    <th>msg</th>
+                    <th>tkn</th>
+                    <th>action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Response.result</td>
+                    <td>@Response.msg</td>
+                    <td>@Response.tkn</td>
+                    <td>@Response.action</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</body>
+
+@code
+{
+
+    private static Action<iframRS> action;
+    private iframRS Response;
+
+    protected override void OnInitialized()
+    {
+        action = UpdateMessage;
+    }
+
+    private void UpdateMessage(iframRS name)
+    {
+        Response = name;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public static void GetIframRS(iframRS ptkn)
+    {
+        Console.WriteLine(ptkn.tkn);
+        Console.WriteLine(ptkn.msg);
+        Console.WriteLine(ptkn.result);
+
+        action.Invoke(ptkn);
+    }
+
+    public class iframRS
+    {
+        public string result { get; set; }
+
+        public string msg { get; set; }
+
+        public string tkn { get; set; }
+
+        public string action { get; set; }
+    }
+}
